@@ -6,7 +6,7 @@ http://localhost:3000/pages/home
 http://localhost:3000/pages/importPage
 http://localhost:3000/pages/result
 
-To calculate the formulae, we need to Import the file Example_File.xlx first from the importPage. (Included in the parent Irrigation folder)
+To calculate the formulae, we need to Import the files first from the importPage. (Included in the app/assets/files)
 
 The home page has the input form, which submits to database the user data.
 
