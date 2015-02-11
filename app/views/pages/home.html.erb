@@ -1,0 +1,258 @@
+<title>HOME PAGE</title>
+
+<div class="col-xs-1"></div>
+ <h1 id = "1" onload = "setGlobalValues()"><CENTER>ET based Irrigation Scheduler</CENTER></h1>
+ <div class = "col-xs-1" ></div>
+ <div class = "col-xs-8" >
+	<form accept-charset="UTF-8" action= "add" data-remote="true" method="get" id = "saveData">
+		<input name="authenticity_token" type="hidden" value="<%= form_authenticity_token %>"/>
+		<input name="buttonClicked" id="buttonClicked" type="hidden" value="0"/>
+		<input name="seasonA" id="seasonA" type="hidden" value=""/>
+		<input name="seasonB" id="seasonB" type="hidden" value=""/>
+		<input name="seasonC" id="seasonC" type="hidden" value=""/>
+	</form>
+
+	Enter Crop :  
+	<select name = "cropType" id = "cropType" onchange = "updateKcValue()" form="saveData" >
+	  <% @cropCoeff.each do |t| %>
+	   	<option value = <%= t[1]%> > <%= t[1] %></option>
+	  <% end %>
+	</select>
+	<br><br>
+	Planting Date : <input id = "pDate" data-provide="datepicker" class = "dateField" name = "pDate"  onchange="updateValues()" form="saveData" >
+	<br><br>
+	Expected Harvesting Date : <input name = "hDate" class = "dateField" id = "hDate" form= "saveData" data-provide="datepicker" onchange="updateValues()">
+	<br><br>
+
+	<br><br>
+	<div class= "container">
+		<div class = "col-xs-3">
+			Growth Stages
+		</div>
+
+		<div class = "col-xs-2">
+			Crop Coeffcient(K_c)
+		</div>
+
+		<div class = "col-xs-2">
+			%ETc Replacement
+		</div>
+	</div>
+	<div class= "container" id = "AB">
+		<div class = "col-xs-3">
+			<font color="red">A-B</font>
+			<br>
+			<div id= "ABDates">Dates</div>
+		</div>
+
+		<div class = "col-xs-2">
+			<br>
+			<div id = "ABCoeff">Nil
+			</div>
+		</div>
+
+		<div class = "col-xs-2">
+			<br>
+			<input name = "ABReplacement" id = "ABReplacement" type="number" form = "saveData" value = "100">  
+		</div>
+	</div>
+
+	<div class= "container" id = "BC">
+		<div class = "col-xs-3">
+			<font color="red">B-C</font>
+			<br>
+			<div id= "BCDates">Dates</div>
+		</div>
+
+		<div class = "col-xs-2">
+			<br>
+			<div id = "BCCoeff">Nil
+			</div>
+		</div>
+
+		<div class = "col-xs-2">
+			<br>
+			<input name = "BCReplacement"id = "BCReplacement" type="number" form = "saveData" value = "100">
+		</div>
+	</div>
+
+	<div class= "container" id = "CD">
+		<div class = "col-xs-3">
+			<font color="red">C-D</font>
+			<br>
+			<div id= "CDDates">Dates</div>
+		</div>
+
+		<div class = "col-xs-2">
+			<br>
+			<div id = "CDCoeff">Nil
+			</div>
+		</div>
+
+		<div class = "col-xs-2">
+			<br>
+			<input name = "CDReplacement" id = "CDReplacement" type="number" form = "saveData" value = "80">
+		</div>
+	</div>
+
+	<div class= "container" id = "AB">
+		<div class = "col-xs-3">
+			<font color="red">D-E</font>
+			<br>
+			<div id= "DEDates">Dates</div>
+		</div>
+
+		<div class = "col-xs-2">
+			<br>
+			<div id = "DECoeff">Nil
+			</div>
+		</div>
+
+		<div class = "col-xs-2">
+			<br>
+			<input name = "DEReplacement" id = "DEReplacement" type="number" form = "saveData" value = "60">
+		</div>
+	</div>
+	<br><br>
+	Irrigation Date : <input name = "iDate" class = "dateField" id = "iDate" form= "saveData" data-provide="datepicker" onchange="computeData()">
+	<br><br>
+	Irrigation Method :  
+	<select id = "iMethod">
+	   	<option value = "Drip"> Drip</option>
+	   	<option value = "Flood"> Flood</option>
+	   	<option value = "Sprinkler"> Sprinkler</option>
+	   	<option value = "Furrow"> Furrow</option>
+	</select>
+	<br><br>
+	System Efficiency : 
+	<input type="number" id = "sEfficiency" name = "sEfficiency" form ="saveData">%
+	<br><br>
+
+	Irrigation Amount Required : <input type="number" step="any" id = "irVal" name= "irVal" form="saveData" value="50">inches
+	<br><br>
+
+	Pump Discharge rate: <input type="number" id = "pDischarge" name = "pDischarge" form="saveData">gal/min
+
+	<br><br>
+
+	Pump Hours Required: <font id ="pHours">0 </font> hours
+
+   	</form>
+   	<br><br>
+   	<input name="commit" id="commit" form= "saveData" type="submit" value="Submit" onclick="Button1Clicked()">	
+   	<font class = "col-xs-2" />
+   	<input name="commit" id="commit" form= "saveData" type="submit" value="Calculate" onclick="Button2Clicked()">
+ </div>
+
+ <br><br><br><br><br>
+ <% if !flash[:success].nil? %>
+ <div class="alert alert-error">
+    <button type="button" class="close" data-dismiss="alert" >×</button>
+    <strong><%= flash[:success] %></strong>
+    </div>
+<% end %>
+
+
+<%= javascript_tag do %>
+  window.cropCoeffs = <%=raw @cropCoeff %>;
+<% end %>
+<script >
+
+$(document).ready(function(){
+
+  $('#saveData')    
+    .bind("ajax:success", function(evt, data, status, xhr){
+      // Insert response partial into page below the form.
+      oldtxt = xhr.responseText;
+      alert(xhr.responseText);
+      txt = oldtxt.split("\n").slice(1).join("\n");
+      parser=new DOMParser();
+  	  xmlDoc=parser.parseFromString(txt,"text/xml");
+      var txt2 = xmlDoc.getElementsByTagName("type")[0].childNodes[0].nodeValue;
+      if(txt2=="submit"){
+      	location.reload();
+      }
+      else{
+      	var txt3 = xmlDoc.getElementsByTagName("irrRequire")[0].childNodes[0].nodeValue;
+      	document.getElementById("irVal").value = txt3;
+      	var txt4 = xmlDoc.getElementsByTagName("pHours")[0].childNodes[0].nodeValue;
+      	document.getElementById("pHours").innerHTML = txt4;
+      		
+      }
+    })
+});
+
+function Button1Clicked(){
+	document.getElementById("buttonClicked").value = "1";
+}
+
+function Button2Clicked(){
+	document.getElementById("buttonClicked").value = "2";
+}
+function updateKcValue(){
+	var cIndex =  $("select[name='cropType'] option:selected").index();
+	document.getElementById("ABCoeff").innerHTML = window.cropCoeffs[cIndex][5]; 
+	document.getElementById("BCCoeff").innerHTML = window.cropCoeffs[cIndex][6];
+	document.getElementById("CDCoeff").innerHTML = window.cropCoeffs[cIndex][7];
+	document.getElementById("DECoeff").innerHTML = window.cropCoeffs[cIndex][8];
+}
+
+function updateValues(){
+	var dates = document.getElementById("pDate");
+	var pDates = $(dates).datepicker('getDate');
+	var date2 = document.getElementById("hDate");
+	var hDates = $(date2).datepicker('getDate');
+
+	if(pDates=="Invalid Date" || hDates == "Invalid Date")
+		return;
+
+	var pDate = new Date(pDates);
+	var hDate = new Date(hDates);
+
+	var pDateT = pDate.getTime();
+	var hDateT = hDate.getTime();
+	var newDates = [];
+	var cIndex =  $("select[name='cropType'] option:selected").index();
+	newDates[0] = pDateT + ((hDateT-pDateT)*window.cropCoeffs[cIndex][2]/100);
+	newDates[1] = pDateT + ((hDateT-pDateT)*window.cropCoeffs[cIndex][3]/100);
+	newDates[2] = pDateT + ((hDateT-pDateT)*window.cropCoeffs[cIndex][4]/100);
+
+	var check = new Date(newDates[0]);
+	window.seasonTime = [];
+	window.seasonTime[0] = pDateT;
+	window.seasonTime[1] = newDates[0];
+	window.seasonTime[2] = newDates[1];
+	window.seasonTime[3] = newDates[2];
+	window.seasonTime[4] = hDateT;
+
+	var newData = document.getElementById("ABDates");
+	newData.innerHTML = datesToString(pDateT,newDates[0]);
+	var newData1 = document.getElementById("BCDates");
+	newData1.innerHTML = datesToString(newDates[0],newDates[1]);
+	var newData2 = document.getElementById("CDDates");
+	newData2.innerHTML = datesToString(newDates[1],newDates[2]);
+	var newData3 = document.getElementById("DEDates");
+	newData3.innerHTML = datesToString(newDates[2],hDateT);
+	var str1 = dateToString(newDates[0]);
+	document.getElementById("seasonA").value = dateToString(newDates[0]).toString();
+	document.getElementById("seasonB").value = dateToString(newDates[1]).toString();
+	document.getElementById("seasonC").value = dateToString(newDates[2]).toString();
+
+	}
+
+function datesToString(p1,p2){
+	var a = new Date(p1);
+	var b = new Date(p2);
+	var z = dateToString(a)+ " - " + dateToString(b);
+	return z;
+}
+function dateToString(p2){
+	var p1 = new Date(p2);
+	var z = parseInt(p1.getMonth()+1) + "/" +p1.getDate()+ "/" +p1.getFullYear();
+	return z;
+}
+$('.button-link').bind('ajax:success', function(){
+  alert("Saved to Database!");
+});
+</script>
+

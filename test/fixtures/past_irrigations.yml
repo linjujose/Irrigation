@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  crop: MyString
+  Date: 2015-01-26
+  value: 1
+
+two:
+  crop: MyString
+  Date: 2015-01-26
+  value: 1

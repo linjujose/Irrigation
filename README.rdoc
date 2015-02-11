@@ -1,0 +1,16 @@
+== README
+
+This is a Ruby on Rails Irrigation scheduler application with MySQL backend. The application is still a work in progress, so the site navigation will be manual. There are three pages,
+
+http://localhost:3000/pages/home
+http://localhost:3000/pages/importPage
+http://localhost:3000/pages/result
+
+To calculate the formulae, we need to Import the file Example_File.xlx first from the importPage. (Included in the parent Irrigation folder)
+
+The home page has the input form, which submits to database the user data.
+
+The result page is currently a static data graph page. Future work includes passing data to it. 
+
+
+

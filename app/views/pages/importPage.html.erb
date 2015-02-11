@@ -1,0 +1,7 @@
+<title>HOME PAGE</title>
+
+<h1>Import Daily Davis Weather Data File </h1>
+<%= form_tag "importDaisy",:method => "post" do %>
+	<%= file_field_tag :file %><br>
+	<%= submit_tag "Import" %>
+<% end %>

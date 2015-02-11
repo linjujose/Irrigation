@@ -1,0 +1,6 @@
+xml = Builder::XmlMarkup.new
+		  		xml.instruct!
+				xml.type "submit"
+				xml.data "dadad"
+				xml.zxy "dadasdasdasdad"
+				render :xml => Builder::XmlMarkup.new(:target=>xml)
